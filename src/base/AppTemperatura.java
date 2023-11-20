@@ -8,7 +8,7 @@ import java.util.Scanner;
 /**
 *@author Marcos Lema
 *@version v1.0
-*DNI: 47374401J
+*DNI: *********
 *Modulo: programacion DAW2324
 *Email: marcos.lema@formacionchios.es
 *Actividad: Actividad02-Ejercicio02
