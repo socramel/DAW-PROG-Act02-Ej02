@@ -11,37 +11,39 @@ import java.util.Scanner;
 *DNI: 47374401J
 *Modulo: programacion DAW2324
 *Email: marcos.lema@formacionchios.es
-*Actividad: Actividad02-Ejercicio01
- */
-
-// Clase principal de la aplicación
+*Actividad: Actividad02-Ejercicio02
+* Aplicacion para tratar temperaturas de ciudades dadas por el usuario */
 public class AppTemperatura {
 	
-    // Creamos las estructuras de almacenamiento 
-    private static ArrayList<String> ciudades = new ArrayList<>();
-    private static HashMap<String, HashMap<String, Double>> temperaturasPorCiudad = new HashMap<>();
+    // Creamos el map para almacenar ciudades y temperaturas 
+    private static Map<String, ArrayList<Double>> temperaturaPorCiudad = new HashMap<>();
+    
+    // Listamos los meses del años
+    private static final String[] MESES = {
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    };
+    
+	// Creamos el objeto de la clase Scanner
+    private static Scanner sc = new Scanner(System.in);
 
+    
     // Método main para iniciar la aplicación
     public static void main(String[] args) {
-    	
-    	// Creamos el objeto de la clase scanner
-        Scanner sc = new Scanner(System.in);
+    
         int opcion;
 
         // Hacemos un do while para el menú de la app
         do {
             mostrarMenu();
-            System.out.print("Seleccione una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+            opcion = obtenerOpcionUsuario();
 
             // Opciones del menú
             switch (opcion) {
                 case 1:
-                    altaCiudades(sc);
+                    altaCiudades();
                     break;
                 case 2:
-                    altaTemperaturas(sc);
+                    altaTemperaturas();
                     break;
                 case 3:
                     mostrarCiudades();
@@ -56,15 +58,12 @@ public class AppTemperatura {
                     mostrarTemperaturaMediaAnual();
                     break;
                 case 7:
-                    System.out.println("Saliendo de la aplicación. ¡Hasta luego!");
+                    System.out.println("\nSaliendo de la aplicación...");
                     break;
                 default:
-                    System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
+                    System.out.println("\nOpción incorrecta. Por favor, teclee una opción válida:\n");
             }
         } while (opcion != 7);
-
-        // Cerrar el scanner al salir de la aplicación
-        sc.close();
     }
 
     // Nos muestra el menú en la consola
@@ -79,101 +78,108 @@ public class AppTemperatura {
         System.out.println("7. Salir de la aplicación");
         System.out.println("==============================");
     }
-
-    /**
-     * Realiza el alta de ciudades.
-     *
-     * @param scanner Scanner para la entrada de datos.
-     */
-    private static void altaCiudades(Scanner scanner) {
-        System.out.print("Ingrese el nombre de la ciudad: ");
-        String ciudad = scanner.nextLine();
-        ciudades.add(ciudad);
-        temperaturasPorCiudad.put(ciudad, new HashMap<>());
-        System.out.println("Ciudad agregada con éxito.");
+    
+    
+    private static int obtenerOpcionUsuario() {
+        System.out.print("Elige una opción: ");
+        return sc.nextInt();
     }
 
-    /**
-     * Realiza el alta de temperaturas para una ciudad y mes específicos.
-     *
-     * @param scanner Scanner para la entrada de datos.
-     */
-    private static void altaTemperaturas(Scanner scanner) {
-        System.out.print("Ingrese el nombre de la ciudad: ");
-        String ciudad = scanner.nextLine();
-
-        if (ciudades.contains(ciudad)) {
-            System.out.print("Ingrese el mes (por ejemplo, enero): ");
-            String mes = scanner.nextLine();
-
-            System.out.print("Ingrese la temperatura para " + ciudad + " en " + mes + ": ");
-            double temperatura = scanner.nextDouble();
-
-            temperaturasPorCiudad.get(ciudad).put(mes, temperatura);
-            System.out.println("Temperatura registrada con éxito.");
+    
+    // 1. Alta de ciudades
+    private static void altaCiudades() {
+        System.out.print("\nIngrese el nombre de la ciudad: ");
+        String ciudad = sc.next();
+        
+        if (!temperaturaPorCiudad.containsKey(ciudad)) {
+            temperaturaPorCiudad.put(ciudad, new ArrayList<>());
+            System.out.println("\n¡Ciudad agregada con éxito!\n");
         } else {
-            System.out.println("Ciudad no encontrada. Primero realice el alta de la ciudad.");
+            System.out.println("\nEsta ciudad ya está dada de alta\n");
         }
     }
 
-    /**
-     * Muestra todas las ciudades almacenadas.
-     */
+    
+    // 2. Alta de temperaturas
+    private static void altaTemperaturas() {
+    	
+    	// Comprobar las ciudades que ya ingresaron temperaturas
+        ArrayList<String> ciudadesConTemperaturasIngresadas = new ArrayList<>();
+    	
+        for (String ciudad : temperaturaPorCiudad.keySet()) {
+        	
+            // Verificar si la ciudad ya está en la lista de ciudades con temperaturas ingresadas
+            if (!ciudadesConTemperaturasIngresadas.contains(ciudad)) {
+            	
+                // Verificar si ya se han ingresado temperaturas para la ciudad actual
+                if (temperaturaPorCiudad.get(ciudad).isEmpty()) {
+                    System.out.println("\nIngresar temperaturas para la ciudad de " + ciudad + ":");
+                    for (String mes : MESES) {
+                        System.out.print("\nTemperatura de " + mes + ": ");
+                        double temperatura = sc.nextDouble();
+                        temperaturaPorCiudad.get(ciudad).add(temperatura);
+                    }
+                    
+                 	// Agregar a la lista de ciudades con temperaturas ingresadas
+                    ciudadesConTemperaturasIngresadas.add(ciudad); 
+                }
+            }
+        }
+        if (!ciudadesConTemperaturasIngresadas.isEmpty()) {
+            System.out.print("\n¡Temperaturas agregadas con éxito!\n");
+        }
+    }
+
+    
+    // 3. Mostrar todas las ciudades
     private static void mostrarCiudades() {
-        System.out.println("\nCiudades registradas:");
-        for (String ciudad : ciudades) {
-            System.out.println(ciudad);
+        System.out.println("\nCiudades: ");
+        for (String ciudad : temperaturaPorCiudad.keySet()) {
+            System.out.println(ciudad + "\n");
         }
     }
 
-    /**
-     * Muestra todos los meses almacenados.
-     */
+
+    // 4. Mostrar todos los meses
     private static void mostrarMeses() {
-        System.out.println("\nMeses registrados:");
-        for (String ciudad : ciudades) {
-            System.out.println("Meses para " + ciudad + ": " + temperaturasPorCiudad.get(ciudad).keySet());
+        System.out.println("\nMeses: ");
+        for (String mes : MESES) {
+            System.out.println(mes + "\n");
         }
     }
 
-    /**
-     * Muestra las temperaturas de cada mes para cada ciudad.
-     */
+
+    // 5. Mostrar temperaturas mensuales de las ciudades
     private static void mostrarTemperaturasPorCiudad() {
-        System.out.println("\nTemperaturas por ciudad:");
-        for (Map.Entry<String, HashMap<String, Double>> entry : temperaturasPorCiudad.entrySet()) {
-            String ciudad = entry.getKey();
-            System.out.println("Ciudad: " + ciudad);
-            System.out.println("Temperaturas: " + entry.getValue());
+
+        for (String ciudad : temperaturaPorCiudad.keySet()) {
+            System.out.println("\nTemperaturas mensuales en la ciudad de " + ciudad + ":");
+            ArrayList<Double> temperaturas = temperaturaPorCiudad.get(ciudad);
+            for (int i = 0; i < MESES.length; i++) {
+                System.out.println(MESES[i] + ": " + temperaturas.get(i) + " ºC\n");
+            }
         }
     }
 
-    /**
-     * Muestra la temperatura media anual para cada ciudad.
-     */
+    
+    // 6. Mostrar temperatura media
     private static void mostrarTemperaturaMediaAnual() {
-        System.out.println("\nTemperatura media anual por ciudad:");
-        for (String ciudad : ciudades) {
-            double media = calcularMediaAnual(ciudad);
-            System.out.println("Ciudad: " + ciudad + ", Temperatura media anual: " + media);
+        for (String ciudad : temperaturaPorCiudad.keySet()) {
+            ArrayList<Double> temperaturas = temperaturaPorCiudad.get(ciudad);
+            double media = calcularMediaAnual(temperaturas);
+            System.out.println("\nTemperatura media anual de " + ciudad + ": " + media + " ºC\n");
         }
     }
 
-    /**
-     * Calcula la temperatura media anual para una ciudad.
-     *
-     * @param ciudad Ciudad para la cual se calculará la temperatura media anual.
-     * @return Temperatura media anual.
-     */
-    private static double calcularMediaAnual(String ciudad) {
-        HashMap<String, Double> temperaturas = temperaturasPorCiudad.get(ciudad);
+
+    // Calcular temperatura media anual para cada ciudad
+    private static double calcularMediaAnual(ArrayList<Double> valores) {
         double suma = 0;
 
-        for (double temperatura : temperaturas.values()) {
-            suma += temperatura;
+        for (double valor : valores) {
+            suma += valor;
         }
 
-        return suma / temperaturas.size();
+        return suma / valores.size();
     }
 }
-
